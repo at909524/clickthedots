@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class NewMonoBehaviourScript : MonoBehaviour
 {
@@ -9,10 +10,17 @@ public class NewMonoBehaviourScript : MonoBehaviour
     public float time_between_spawns = 1f;
     private float dot_spawn_timer = 0f;
 
+    //Score
+    private int score = 0;
+    public TMP_Text score_text;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+
+        score_text.text = "Score: 0";
+
         //Wait .5 seconds before spawning a dot
         dot_spawn_timer = 0.5f;
     }
@@ -33,6 +41,12 @@ public class NewMonoBehaviourScript : MonoBehaviour
             //If what we collided with has a collider
             if(hit.collider != null )
             {
+                //Added the clicked dot's point value to the score
+                score += hit.collider.gameObject.GetComponent<Dot>().point_value;
+
+                //Update the score text with the new score
+                score_text.text = "Score" + score;
+
                 //Destroy the game object attached to it
                 Destroy(hit.collider.gameObject);
             }
@@ -43,11 +57,32 @@ public class NewMonoBehaviourScript : MonoBehaviour
         dot_spawn_timer -= Time.deltaTime;
 
         //If the timer has counted down...
-        if(dot_spawn_timer >= 0f )
+        if(dot_spawn_timer <= 0f )
         {
             //Reset timer
             dot_spawn_timer = time_between_spawns;
+
+            //Spawn dots...
+            SpawnDot();
         }
 
+    }
+
+    private void SpawnDot()
+    {
+        //Create a new dot object and add it to the scene
+        GameObject new_dot = Instantiate(dot);
+
+        //Get a random x/y screen space position
+        int x_pos = Random.Range(0, cam.scaledPixelWidth);
+        int y_pos = Random.Range(0, cam.scaledPixelHeight);
+
+        //Convert the random point in screen space to world space
+        Vector3 spawn_point = new Vector3(x_pos, y_pos);
+        spawn_point = cam.ScreenToWorldPoint(spawn_point);
+        spawn_point.z = 0;
+
+        //Move the dot to the spawn point
+        new_dot.transform.position = spawn_point; 
     }
 }
