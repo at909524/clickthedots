@@ -1,7 +1,8 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class GameLogic : MonoBehaviour
 {
     public Camera cam;
 
@@ -14,10 +15,19 @@ public class NewMonoBehaviourScript : MonoBehaviour
     private int score = 0;
     public TMP_Text score_text;
 
+    //Timer
+    private float game_timer = 60; //In seconds
+    public TMP_Text game_timer_text;
+
+    //Restarting
+    public GameObject restart_button;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        //Disable the restart button
+        restart_button.SetActive(false);
 
         score_text.text = "Score: 0";
 
@@ -28,6 +38,17 @@ public class NewMonoBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //***Game Timer***
+        game_timer -= Time.deltaTime;
+        if(game_timer < 0)
+        {
+            game_timer = 0;
+            game_timer_text.text = "Time: 0";
+            restart_button.SetActive(true);
+            return;
+        }
+        game_timer_text.text = "Time: " + Mathf.Floor(game_timer).ToString();
+
         //Check if the user pressed the left mouse button
         if(Input.GetMouseButtonDown(0))
         {
@@ -45,7 +66,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
                 score += hit.collider.gameObject.GetComponent<Dot>().point_value;
 
                 //Update the score text with the new score
-                score_text.text = "Score" + score;
+                score_text.text = "Score: " + score;
 
                 //Destroy the game object attached to it
                 Destroy(hit.collider.gameObject);
@@ -84,5 +105,10 @@ public class NewMonoBehaviourScript : MonoBehaviour
 
         //Move the dot to the spawn point
         new_dot.transform.position = spawn_point; 
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
